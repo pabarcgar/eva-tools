@@ -36,8 +36,7 @@ import java.util.*;
 /**
  * Created by pagarcia on 03/08/2016.
  */
-@RestController
-@RequestMapping(value = "/v1/segments")
+@VcfDumperWSController
 public class VcfDumperWSServer {
 
     public Properties evaProperties;
