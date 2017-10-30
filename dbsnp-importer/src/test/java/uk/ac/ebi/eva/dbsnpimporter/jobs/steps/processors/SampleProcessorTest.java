@@ -20,8 +20,14 @@ import org.junit.Test;
 
 import uk.ac.ebi.eva.commons.core.models.pedigree.Sex;
 import uk.ac.ebi.eva.commons.mongodb.entities.SampleMongo;
+import uk.ac.ebi.eva.commons.mongodb.entities.subdocuments.SamplePhenotypeMongo;
 import uk.ac.ebi.eva.dbsnpimporter.models.Sample;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.IsCollectionContaining.hasItem;
 import static org.junit.Assert.assertEquals;
 
 public class SampleProcessorTest {
@@ -32,15 +38,24 @@ public class SampleProcessorTest {
         String sampleId = "sample1";
         String father = "father1";
         String mother = "mother1";
-        Sample sample = new Sample(sampleId, Sex.MALE, father, mother, null);
 
+        Map<String, String> cohortCategories = new HashMap<>();
+        String populationCategory = "population";
+        String population = "population1";
+        cohortCategories.put(populationCategory, population);
+        String hairColorCategory = "hair_color";
+        String brown = "brown";
+        cohortCategories.put(hairColorCategory, brown);
+
+        Sample sample = new Sample(sampleId, Sex.MALE, father, mother, cohortCategories);
         SampleMongo sampleMongo = processor.process(sample);
 
         assertEquals(sampleId, sampleMongo.getId());
         assertEquals("MALE", sampleMongo.getSex());
         assertEquals(father, sampleMongo.getFather());
         assertEquals(mother, sampleMongo.getMother());
-        assertEquals(null, sampleMongo.getPhenotypes());
+        assertThat(sampleMongo.getPhenotypes(), hasItem(new SamplePhenotypeMongo(populationCategory, population)));
+        assertThat(sampleMongo.getPhenotypes(), hasItem(new SamplePhenotypeMongo(hairColorCategory, brown)));
     }
 
 }

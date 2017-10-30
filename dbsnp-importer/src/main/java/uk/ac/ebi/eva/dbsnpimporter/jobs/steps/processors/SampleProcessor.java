@@ -19,14 +19,26 @@ package uk.ac.ebi.eva.dbsnpimporter.jobs.steps.processors;
 import org.springframework.batch.item.ItemProcessor;
 
 import uk.ac.ebi.eva.commons.mongodb.entities.SampleMongo;
+import uk.ac.ebi.eva.commons.mongodb.entities.subdocuments.SamplePhenotypeMongo;
 import uk.ac.ebi.eva.dbsnpimporter.models.Sample;
+
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 public class SampleProcessor implements ItemProcessor<Sample, SampleMongo> {
 
     @Override
     public SampleMongo process(Sample sample) throws Exception {
-        // TODO: convert cohorts
-        // TODO: implement sample Sex toString
-        return new SampleMongo(sample.getId(), sample.getSex().toString(), sample.getFather(), sample.getMother(), null);
+        return new SampleMongo(sample.getId(), sample.getSex().toString(), sample.getFather(), sample.getMother(),
+                               getSamplePhenotypes(sample));
+    }
+
+    private Set<SamplePhenotypeMongo> getSamplePhenotypes(Sample sample) {
+        Set<SamplePhenotypeMongo> phenotypes = new HashSet<>();
+        for (Map.Entry<String, String> cohortCategory : sample.getCohorts().entrySet()) {
+            phenotypes.add(new SamplePhenotypeMongo(cohortCategory.getKey(), cohortCategory.getValue()));
+        }
+        return phenotypes;
     }
 }
